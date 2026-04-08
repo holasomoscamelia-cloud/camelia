@@ -32,8 +32,6 @@
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Josefin+Sans:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root {
     --bg-main: #FBF9F6;
@@ -1148,40 +1146,6 @@
             <span class="field-error-msg" id="error-contacto">Introduce tu teléfono o email</span>
           </div>
         </div>
-        <div style="margin-bottom:16px;margin-top:16px;">
-          <p style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;margin-bottom:10px;" id="map-label">¿En qué zona necesitas el servicio? *</p>
-          <div class="map-search-wrap">
-            <input class="map-search-input" type="text" id="map-search" placeholder="Escribe tu barrio o municipio…" oninput="debounceSearch()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarDireccion();}">
-          </div>
-          <div class="map-wrap" id="map-wrap-el">
-            <div id="map"></div>
-            <div class="map-overlay-hint" id="map-hint">Pulsa en el mapa para marcar tu zona</div>
-          </div>
-          <div class="map-selected" id="map-selected">
-            <span class="map-selected-label">Zona seleccionada</span>
-            <span class="map-selected-value" id="map-selected-value">—</span>
-            <span class="map-selected-change" onclick="resetMapa()">Cambiar zona ×</span>
-          </div>
-          <p class="map-hint-small" id="map-hint-small">Marca tu zona en el mapa — necesario para confirmar disponibilidad</p>
-          <span class="field-error-msg" id="error-mapa">Marca tu zona en el mapa</span>
-        </div>
-        <div style="margin-bottom:16px;">
-          <p style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:10px;">¿Cómo nos has encontrado?</p>
-          <div class="select-wrapper">
-            <select class="form-select" id="canal" style="font-size:14px;padding:8px 0;border-bottom:1px solid var(--border-soft);background:transparent;width:100%;color:var(--text-dark);font-family:'Josefin Sans',sans-serif;border-top:none;border-left:none;border-right:none;outline:none;appearance:none;-webkit-appearance:none;border-radius:0;">
-              <option value="" disabled selected style="color:#BDB7AE;">Selecciona una opción</option>
-              <option value="google">Búsqueda en Google</option>
-              <option value="instagram">Instagram</option>
-              <option value="recomendacion">Recomendación de alguien</option>
-              <option value="facebook">Facebook</option>
-              <option value="otro">Otro</option>
-            </select>
-          </div>
-        </div>
-        <div style="margin-bottom:16px;">
-          <p style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:10px;">¿Tienes alguna duda o comentario?</p>
-          <textarea class="form-textarea" id="comentario" placeholder="Cuéntanos lo que necesitas…" rows="3"></textarea>
-        </div>
         <div class="rgpd-wrap" id="rgpd-wrap">
           <input type="checkbox" id="rgpd-check" onchange="clearFieldError('rgpd')">
           <label class="rgpd-label" for="rgpd-check">
@@ -1439,12 +1403,10 @@
   async function handleSubmit() {
     const nombre = document.getElementById('nombre').value.trim();
     const contacto = document.getElementById('contacto').value.trim();
-    const canal = document.getElementById('canal').value;
     let valid = true;
 
     if (!nombre)   { markError('nombre');   valid = false; }
     if (!contacto) { markError('contacto'); valid = false; }
-    if (!selectedLatLng) { markError('mapa'); valid = false; }
     const rgpdCheck = document.getElementById('rgpd-check');
     if (!rgpdCheck.checked) { markError('rgpd'); valid = false; }
     else { clearFieldError('rgpd'); }
@@ -1457,12 +1419,7 @@
     const btn = document.getElementById('sim-cta-btn');
     btn.textContent = 'Enviando...'; btn.disabled = true;
 
-    const comentario = document.getElementById('comentario').value.trim();
     const tipoServicio = currentSimTab;
-    const zonaLabel = document.getElementById('map-selected-value').textContent !== '—'
-      ? document.getElementById('map-selected-value').textContent : '';
-    const zonaCoords = selectedLatLng
-      ? `${selectedLatLng.lat.toFixed(5)},${selectedLatLng.lng.toFixed(5)}` : '';
 
     const simConfig = getSimState();
 
@@ -1473,10 +1430,6 @@
           ...simConfig,
           nombre, contacto,
           tipo_servicio: tipoServicio,
-          zona: zonaLabel,
-          coordenadas: zonaCoords,
-          canal,
-          comentario,
           convertido: true,
           updated_at: new Date().toISOString()
         };
