@@ -1138,7 +1138,7 @@
       </div>
 
       <div id="sim-form-content">
-        <div class="sim-form-fields">
+        <div class="sim-form-fields" style="margin-top: 28px;">
           <div>
             <input class="sim-form-input" type="text" id="nombre" placeholder="Tu nombre *" autocomplete="name" oninput="clearFieldError('nombre')">
             <span class="field-error-msg" id="error-nombre">Introduce tu nombre</span>
@@ -1148,21 +1148,14 @@
             <span class="field-error-msg" id="error-contacto">Introduce tu teléfono o email</span>
           </div>
         </div>
-        <div class="rgpd-wrap" id="rgpd-wrap">
-          <input type="checkbox" id="rgpd-check" onchange="clearFieldError('rgpd')">
-          <label class="rgpd-label" for="rgpd-check">
-            Acepto que Camelia guarde mis datos (nombre y contacto) para avisarme cuando haya plazas disponibles en mi zona. No los compartiré con terceros. Puedo pedir su eliminación escribiendo a hola.somoscamelia@gmail.com.
-          </label>
-        </div>
-        <span class="field-error-msg" id="error-rgpd" style="margin-bottom:8px;">Acepta la política de privacidad para continuar</span>
-        <button class="sim-cta" id="sim-cta-btn" onclick="handleSubmit()">Reservar mi plaza →</button>
-        <p class="sim-note" id="sim-note-el">Sin compromiso. Te avisamos cuando haya plaza en tu zona.</p>
+        <button class="sim-cta" id="sim-cta-btn" onclick="handleSubmit()">Solicitar información →</button>
+        <p class="sim-note" id="sim-note-el">Sin compromiso. Te responderemos en menos de 24 horas.</p>
       </div>
 
       <div class="success-state" id="success-state">
         <div class="success-icon">✓</div>
-        <h3 class="success-title">Hablamos pronto</h3>
-        <p class="success-text">Hemos recibido tus datos. Nos pondremos en contacto en cuanto abramos plazas en tu zona.<br><br>Gracias por confiar en Camelia.</p>
+        <h3 class="success-title">Solicitud recibida</h3>
+        <p class="success-text">Hemos guardado tu información. Te responderemos en menos de 24 horas al contacto que nos dejaste.<br><br>Gracias por confiar en Camelia.</p>
       </div>
     </div>
   </div>
@@ -1413,9 +1406,7 @@
 
     if (!nombre)   { markError('nombre');   valid = false; }
     if (!contacto) { markError('contacto'); valid = false; }
-    const rgpdCheck = document.getElementById('rgpd-check');
-    if (!rgpdCheck.checked) { markError('rgpd'); valid = false; }
-    else { clearFieldError('rgpd'); }
+
     if (!valid) {
       const firstErr = document.querySelector('.field-error, .field-error-msg.visible');
       if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1625,7 +1616,7 @@
     } else {
       precioEl.textContent = Math.round(precioMes);
       if (subEl) subEl.textContent = '€ / mes + IVA';
-      if (noteEl) noteEl.textContent = 'Precio estimado sin IVA (21%). Lo confirmamos en nuestra primera conversación.';
+      if (noteEl) noteEl.textContent = 'Sin compromiso. Te responderemos en menos de 24 horas.';
       if (ctaEl) ctaEl.textContent = 'Solicitar información →';
       if (floatEl) floatEl.textContent = Math.round(precioMes) + ' €/mes + IVA';
     }
