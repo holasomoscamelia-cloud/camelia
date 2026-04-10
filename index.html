@@ -118,6 +118,28 @@
   }
   .hero-cta-btn:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(196,139,113,0.5); }
 
+  .hero-mini-form { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 460px; }
+  .hero-mini-fields { display: flex; gap: 10px; width: 100%; }
+  .hero-mini-input {
+    flex: 1; padding: 14px 16px; border: 1px solid var(--border-soft); border-radius: 8px;
+    background: var(--bg-card); color: var(--text-dark); font-family: 'Josefin Sans', sans-serif;
+    font-size: 14px; font-weight: 400; outline: none; transition: border-color 0.3s ease;
+  }
+  .hero-mini-input:focus { border-color: var(--accent); }
+  .hero-mini-input::placeholder { color: #BDB7AE; }
+  .hero-mini-note { font-size: 12px; color: var(--text-muted); letter-spacing: 0.03em; }
+  .hero-link-btn {
+    background: none; border: none; color: var(--text-muted); font-family: 'Josefin Sans', sans-serif;
+    font-size: 13px; font-weight: 400; letter-spacing: 0.08em; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 3px; padding: 4px 0;
+    transition: color 0.2s ease;
+  }
+  .hero-link-btn:hover { color: var(--accent); }
+  @media (max-width: 600px) {
+    .hero-mini-fields { flex-direction: column; }
+    .hero-mini-form { max-width: 100%; }
+  }
+
   /* SERVICIOS BADGE */
   .hero-badges {
     display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
@@ -703,7 +725,7 @@
 
 <div class="bg-base"></div>
 
-<div class="banner">⬡ &nbsp;Plazas limitadas · Oviedo y Gijón · Próximamente&nbsp; ⬡</div>
+<div class="banner">⬡ &nbsp;Plazas limitadas · Oviedo y Gijón · Reserva ya tu plaza&nbsp; ⬡</div>
 
 <!-- NAV -->
 <nav class="nav" id="nav">
@@ -768,11 +790,19 @@
       <h1 class="hero-title">Llegas a casa.<br>Todo está<br><span>perfecto.</span></h1>
       <p class="hero-sub">Cuidado profesional para tu hogar y para quienes quieres. <strong>Siempre la misma persona de confianza.</strong> Sin preocupaciones.</p>
       <div class="hero-cta-wrap">
-        <button class="hero-cta-btn" onclick="document.getElementById('simulador').scrollIntoView({behavior:'smooth'})">Calcula tu precio →</button>
-        <div class="hero-badges">
-          <span class="hero-badge active" style="cursor:pointer" onclick="scrollToSim('hogar')">Para el hogar</span>
-          <span class="hero-badge active" style="cursor:pointer" onclick="scrollToSim('mayor')">Para mayores</span>
+        <div class="hero-mini-form" id="hero-capture">
+          <div class="hero-mini-fields">
+            <input class="hero-mini-input" type="text" id="hero-nombre" placeholder="Tu nombre" autocomplete="name">
+            <input class="hero-mini-input" type="text" id="hero-contacto" placeholder="Teléfono o email" autocomplete="email">
+          </div>
+          <button class="hero-cta-btn" onclick="handleHeroSubmit()">Reservar mi plaza →</button>
+          <p class="hero-mini-note">Sin compromiso. Te avisamos en cuanto abramos en tu zona.</p>
         </div>
+        <div id="hero-success" style="display:none; text-align:center; padding: 16px 0;">
+          <p style="font-size:16px; color:var(--accent); font-weight:600; letter-spacing:0.05em;">✓ Plaza reservada</p>
+          <p style="font-size:14px; color:var(--text-muted); margin-top:6px;">Te avisaremos en cuanto abramos en tu zona.</p>
+        </div>
+        <button class="hero-link-btn" onclick="document.getElementById('simulador').scrollIntoView({behavior:'smooth'})">Ver precios estimados ↓</button>
       </div>
     </div>
   </div>
@@ -1251,7 +1281,7 @@
     </svg>
     <span class="footer-logo">CAMELIA</span>
   </div>
-  <span class="footer-text">Oviedo · Gijón · Próximamente</span>
+  <span class="footer-text">Oviedo · Gijón · 2026</span>
 </footer>
 
 <script>
@@ -1397,6 +1427,31 @@
     if (fieldId === 'rgpd') {
       document.getElementById('rgpd-wrap').classList.remove('field-error');
     }
+  }
+
+  async function handleHeroSubmit() {
+    const nombre = document.getElementById('hero-nombre').value.trim();
+    const contacto = document.getElementById('hero-contacto').value.trim();
+    if (!nombre || !contacto) {
+      if (!nombre) document.getElementById('hero-nombre').style.borderColor = '#c0392b';
+      if (!contacto) document.getElementById('hero-contacto').style.borderColor = '#c0392b';
+      return;
+    }
+    const btn = document.querySelector('#hero-capture .hero-cta-btn');
+    btn.textContent = 'Guardando...'; btn.disabled = true;
+    try {
+      if (_sb) {
+        await _sb.from('camelia_sessions').insert({
+          session_id: _sessionId,
+          nombre, contacto,
+          convertido: true,
+          canal: 'hero',
+          sim_tipo: 'hogar'
+        });
+      }
+    } catch (err) { console.error('[Camelia] Error hero form:', err); }
+    document.getElementById('hero-capture').style.display = 'none';
+    document.getElementById('hero-success').style.display = 'block';
   }
 
   async function handleSubmit() {
